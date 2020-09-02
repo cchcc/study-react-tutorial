@@ -16,16 +16,18 @@ function calculateWinner(squares) {
   for (let i = 0; i < lines.length; i++) {
     const [a, b, c] = lines[i];
     if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-      return squares[a];
+      return [squares[a], lines[i]];
     }
   }
-  return null;
+  return [];
 }
 
 function Square(props) {
   return (
     <button className="square" 
-              onClick={props.onClick}>
+              onClick={props.onClick}
+              style={props.style}
+              >
         {props.value}
       </button>
   );
@@ -34,9 +36,15 @@ function Square(props) {
 class Board extends React.Component {
 
   renderSquare(i) {
+    
+    let style = {}
+    if (this.props.winSquares && this.props.winSquares.indexOf(i) > -1)
+      style = {color:'#00f'}
+
     return <Square key={i} 
                    value={this.props.squares[i]} 
                    onClick={() => this.props.onClick(i)}
+                   style={style}
            />;
   }
 
@@ -77,7 +85,9 @@ class Game extends React.Component {
     const historyIdx = this.state.historyIdx.slice(0, this.state.step);
     const current = history[history.length - 1];
     const squares = current.squares.slice()
-    if (calculateWinner(squares) || squares[i]) {
+
+    const [winner] = calculateWinner(current.squares);
+    if (winner || squares[i]) {
       return;
     }
 
@@ -109,12 +119,15 @@ class Game extends React.Component {
     const history = this.state.history;
     const historyIdx = this.state.historyIdx;
     const current = history[this.state.step];
-    const winner = calculateWinner(current.squares);
+    const [winner, winSquares] = calculateWinner(current.squares);
     let status;
     if (winner) {
       status = 'Winner: ' + winner;
     } else {
-      status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
+      if (this.state.step == 9)
+        status = 'Draw Game'
+      else  
+        status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
     }
 
     const moves = history.map((step, move) => {
@@ -143,6 +156,7 @@ class Game extends React.Component {
         <div className="game-board">
           <Board 
             squares={current.squares}
+            winSquares={winSquares}
             onClick={(i) => this.handleClick(i)}
             />
         </div>
