@@ -34,31 +34,26 @@ function Square(props) {
 class Board extends React.Component {
 
   renderSquare(i) {
-    return <Square value={this.props.squares[i]} 
+    return <Square key={i} 
+                   value={this.props.squares[i]} 
                    onClick={() => this.props.onClick(i)}
            />;
   }
 
   render() {
-    return (
-      <div>
-        <div className="board-row">
-          {this.renderSquare(0)}
-          {this.renderSquare(1)}
-          {this.renderSquare(2)}
-        </div>
-        <div className="board-row">
-          {this.renderSquare(3)}
-          {this.renderSquare(4)}
-          {this.renderSquare(5)}
-        </div>
-        <div className="board-row">
-          {this.renderSquare(6)}
-          {this.renderSquare(7)}
-          {this.renderSquare(8)}
-        </div>
-      </div>
-    );
+    const rowSize = 3;
+    const colSize = 3;
+
+    const rows = [];
+    for (let ri = 0; ri < rowSize; ++ri) {
+      const squares = [];
+      for (let ci = 0; ci < colSize; ++ci)
+        squares.push(this.renderSquare(ri*rowSize + ci))
+      
+      rows.push(<div key={ri} className="board-row">{squares}</div>)
+    }
+
+    return <div>{rows}</div>;
   }
 }
 
@@ -72,6 +67,7 @@ class Game extends React.Component {
       historyIdx: [], 
       xIsNext: true,
       step: 0,
+      sortByAsc: true,
     }
   }
 
@@ -100,6 +96,12 @@ class Game extends React.Component {
     this.setState({
       step: move,
       xIsNext: (move % 2) === 0,
+    });
+  }
+
+  handleClickSort() {
+    this.setState({
+      sortByAsc: !this.state.sortByAsc,
     });
   }
 
@@ -133,6 +135,9 @@ class Game extends React.Component {
       
     });
 
+    if (!this.state.sortByAsc)
+      moves.reverse()
+
     return (
       <div className="game">
         <div className="game-board">
@@ -143,6 +148,7 @@ class Game extends React.Component {
         </div>
         <div className="game-info">
           <div>{status}</div>
+          <button onClick={() => this.handleClickSort()}>Sort by {this.state.sortByAsc ? 'Asc' : 'Desc'}</button>
           <ol>{moves}</ol>
         </div>
       </div>
