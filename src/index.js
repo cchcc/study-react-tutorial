@@ -123,19 +123,14 @@ class Game extends React.Component {
         ('Go to move #' + move + '(' + row + ',' + col + ')'):
         'Go to game start';
 
-      if (this.state.step === move) {
-        return(
-          <li key={move}>
-          <button style={{fontWeight: "bold"}} onClick={() => this.jumpTo(move)}>{desc}</button>
+      let style = (this.state.step === move) ? {fontWeight: 'bold'} : {};
+        
+      return(
+        <li key={move}>
+          <button style={style} onClick={() => this.jumpTo(move)}>{desc}</button>
         </li>
-        );
-      } else {
-        return (
-          <li key={move}>
-            <button onClick={() => this.jumpTo(move)}>{desc}</button>
-          </li>
-        );
-      }
+      );
+      
     });
 
     return (
